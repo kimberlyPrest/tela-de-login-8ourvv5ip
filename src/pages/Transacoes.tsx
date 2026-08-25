@@ -2,18 +2,18 @@ import { useState } from 'react'
 import {
   ArrowDownCircle,
   ArrowUpCircle,
+  BriefcaseBusiness,
   Calendar,
   Car,
   CreditCard,
+  ChevronDown,
   Filter,
   Gamepad2,
   Home,
   Plus,
   Search,
   ShoppingCart,
-  BriefcaseBusiness,
   WalletCards,
-  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -67,16 +67,8 @@ const categoryTones: Record<string, string> = {
   Educação: 'bg-indigo-50 text-indigo-600',
 }
 
-const categories = [
-  'Todas',
-  'Alimentação',
-  'Transporte',
-  'Moradia',
-  'Lazer',
-  'Receita',
-  'Saúde',
-  'Educação',
-]
+const categories = ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Receita', 'Saúde', 'Educação']
+const filterCategories = ['Todas', ...categories]
 const periods = ['Este mês', 'Último mês', 'Últimos 3 meses', 'Personalizado']
 
 const initialTransactions: Transaction[] = [
@@ -238,87 +230,149 @@ export default function Transacoes() {
               Nova transação
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Adicionar transação</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
+          <DialogContent className="sm:max-w-[480px] p-0 gap-0 overflow-hidden">
+            <div className="bg-[#0B1D33] px-6 py-5">
+              <DialogHeader className="text-left">
+                <DialogTitle className="text-white text-lg">Nova transação</DialogTitle>
+                <p className="text-slate-400 text-xs mt-1">
+                  Adicione um novo lançamento financeiro
+                </p>
+              </DialogHeader>
+            </div>
+            <div className="px-6 py-5 space-y-5">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="name"
+                  className="text-xs font-bold text-slate-500 uppercase tracking-wide"
+                >
+                  Nome
+                </Label>
                 <Input
                   id="name"
                   value={newTransaction.name}
                   onChange={(e) => setNewTransaction({ ...newTransaction, name: e.target.value })}
-                  placeholder="Ex: Supermercado"
+                  placeholder="Ex: Supermercado, Uber, Salário..."
+                  className="h-11 rounded-xl border-slate-200"
                 />
               </div>
-              <div className="grid gap-2">
-                <Label>Categoria</Label>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                  Tipo
+                </Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNewTransaction({ ...newTransaction, type: 'saida' })}
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-all ${
+                      newTransaction.type === 'saida'
+                        ? 'border-rose-500 bg-rose-50 text-rose-600 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <ArrowDownCircle size={20} />
+                    Saída
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewTransaction({ ...newTransaction, type: 'entrada' })}
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-sm font-bold transition-all ${
+                      newTransaction.type === 'entrada'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-600 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    <ArrowUpCircle size={20} />
+                    Entrada
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="value"
+                  className="text-xs font-bold text-slate-500 uppercase tracking-wide"
+                >
+                  Valor
+                </Label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">
+                    R$
+                  </span>
+                  <Input
+                    id="value"
+                    type="number"
+                    value={newTransaction.value}
+                    onChange={(e) =>
+                      setNewTransaction({ ...newTransaction, value: e.target.value })
+                    }
+                    placeholder="0,00"
+                    className="h-11 rounded-xl border-slate-200 pl-11 text-lg font-bold tabular-nums"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                  Categoria
+                </Label>
                 <Select
                   value={newTransaction.category}
                   onValueChange={(value) =>
                     setNewTransaction({ ...newTransaction, category: value })
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="h-11 rounded-xl border-slate-200">
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const Icon = categoryIcons[newTransaction.category]
+                        const tone = categoryTones[newTransaction.category]
+                        return Icon ? (
+                          <span
+                            className={`flex h-6 w-6 items-center justify-center rounded-md ${tone}`}
+                          >
+                            <Icon size={14} />
+                          </span>
+                        ) : null
+                      })()}
+                      <SelectValue />
+                    </div>
+                    <ChevronDown size={16} className="text-slate-400" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {categories.slice(1).map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="rounded-xl border-slate-200">
+                    {categories.map((cat) => {
+                      const Icon = categoryIcons[cat]
+                      const tone = categoryTones[cat]
+                      return (
+                        <SelectItem key={cat} value={cat} className="rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`flex h-6 w-6 items-center justify-center rounded-md ${tone}`}
+                            >
+                              <Icon size={14} />
+                            </span>
+                            {cat}
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="value">Valor</Label>
-                <Input
-                  id="value"
-                  type="number"
-                  value={newTransaction.value}
-                  onChange={(e) => setNewTransaction({ ...newTransaction, value: e.target.value })}
-                  placeholder="0,00"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Tipo</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={newTransaction.type === 'saida' ? 'default' : 'outline'}
-                    className={`flex-1 gap-2 ${
-                      newTransaction.type === 'saida'
-                        ? 'bg-rose-500 text-white hover:bg-rose-600'
-                        : ''
-                    }`}
-                    onClick={() => setNewTransaction({ ...newTransaction, type: 'saida' })}
-                  >
-                    <ArrowDownCircle size={18} />
-                    Saída
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={newTransaction.type === 'entrada' ? 'default' : 'outline'}
-                    className={`flex-1 gap-2 ${
-                      newTransaction.type === 'entrada'
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                        : ''
-                    }`}
-                    onClick={() => setNewTransaction({ ...newTransaction, type: 'entrada' })}
-                  >
-                    <ArrowUpCircle size={18} />
-                    Entrada
-                  </Button>
-                </div>
-              </div>
             </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <div className="flex gap-3 px-6 pb-6">
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                className="flex-1 h-11 rounded-xl border-slate-200 font-bold"
+              >
                 Cancelar
               </Button>
-              <Button className="primary-button" onClick={handleAddTransaction}>
+              <Button
+                className="flex-1 h-11 rounded-xl bg-[#10B981] hover:bg-[#059669] font-bold gap-2"
+                onClick={handleAddTransaction}
+              >
+                <Plus size={18} />
                 Adicionar
               </Button>
             </div>
@@ -390,7 +444,7 @@ export default function Transacoes() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((cat) => (
+              {filterCategories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}
                 </SelectItem>
