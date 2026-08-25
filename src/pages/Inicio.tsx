@@ -32,6 +32,9 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/contexts/AuthContext'
+import Transacoes from './Transacoes'
+import Metas from './Metas'
+import Relatorios from './Relatorios'
 
 const chartData = [
   { mes: 'Jan', receitas: 6200, despesas: 4100 },
@@ -122,6 +125,19 @@ export default function Inicio() {
     setDrawer(false)
   }
 
+  const renderView = () => {
+    switch (view) {
+      case 'Transações':
+        return <Transacoes />
+      case 'Metas':
+        return <Metas />
+      case 'Relatórios':
+        return <Relatorios />
+      default:
+        return <Dashboard firstName={firstName} />
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F5F7FA] text-[#0F1E2E]">
       <header className="mobile-topbar sticky top-0 z-30 hidden h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-5 backdrop-blur-xl">
@@ -166,11 +182,6 @@ export default function Inicio() {
             >
               <Icon size={19} />
               {label}
-              {label !== 'Visão geral' && (
-                <span className="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[9px] uppercase">
-                  Breve
-                </span>
-              )}
             </button>
           ))}
         </nav>
@@ -193,13 +204,7 @@ export default function Inicio() {
           </button>
         </div>
       </aside>
-      <main className="app-main ml-[260px] min-h-screen p-6 md:p-9 xl:p-10">
-        {view !== 'Visão geral' ? (
-          <ComingSoon view={view} onBack={() => setView('Visão geral')} />
-        ) : (
-          <Dashboard firstName={firstName} />
-        )}
-      </main>
+      <main className="app-main ml-[260px] min-h-screen p-6 md:p-9 xl:p-10">{renderView()}</main>
     </div>
   )
 }
@@ -473,27 +478,6 @@ function ChartCard({
       <p className="mb-4 mt-1 text-xs font-medium text-slate-400">{subtitle}</p>
       {children}
     </Card>
-  )
-}
-function ComingSoon({ view, onBack }: { view: View; onBack: () => void }) {
-  return (
-    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center">
-      <Card className="max-w-md rounded-3xl border-slate-200 p-10 text-center shadow-sm">
-        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
-          <Sparkles size={28} />
-        </span>
-        <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.16em] text-[#10B981]">
-          Em breve
-        </p>
-        <h1 className="mt-2 text-2xl font-extrabold">{view}</h1>
-        <p className="mt-3 text-sm font-medium leading-6 text-slate-500">
-          Estamos preparando esta área para deixar sua vida financeira ainda mais clara.
-        </p>
-        <Button onClick={onBack} className="primary-button mt-7">
-          Voltar à visão geral
-        </Button>
-      </Card>
-    </div>
   )
 }
 function LumenLogo({ dark = false }: { dark?: boolean }) {
